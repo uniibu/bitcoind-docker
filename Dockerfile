@@ -1,34 +1,4 @@
-FROM alpine:3.8 as berkeleydb
-
-RUN apk add --no-cache autoconf \
-    automake \
-    build-base \
-    libressl
-
-RUN mkdir -p /bitcoin
-
-ENV BERKELEYDB_VERSION=db-4.8.30.NC
-ENV BERKELEYDB_PREFIX=/bitcoin/db4
-
-RUN wget https://download.oracle.com/berkeley-db/${BERKELEYDB_VERSION}.tar.gz
-RUN tar -xzf *.tar.gz
-RUN sed s/__atomic_compare_exchange/__atomic_compare_exchange_db/g -i ${BERKELEYDB_VERSION}/dbinc/atomic.h
-RUN mkdir -p ${BERKELEYDB_PREFIX}
-
-WORKDIR /${BERKELEYDB_VERSION}/build_unix
-
-RUN ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=${BERKELEYDB_PREFIX}
-RUN make -j4
-RUN make install
-RUN rm -rf ${BERKELEYDB_PREFIX}/docs
-
 FROM alpine:3.8 AS builder
-
-RUN mkdir -p /bitcoin
-
-COPY --from=berkeleydb /bitcoin /bitcoin
-ENV BERKELEYDB_VERSION=db-4.8.30.NC
-ENV BERKELEYDB_PREFIX=/bitcoin/${BERKELEYDB_VERSION}
 
 RUN apk add --no-cache \
     autoconf \
@@ -44,12 +14,14 @@ RUN apk add --no-cache \
 
 RUN BUILD_TAG=$(wget -qO- https://api.github.com/repos/bitcoin/bitcoin/releases/latest | grep -oP '"tag_name": "v\K(.*)(?=")') && \
     wget -qO- https://github.com/bitcoin/bitcoin/archive/v$BUILD_TAG.tar.gz | tar xz && \
-    mv /bitcoin-$BUILD_TAG/* /bitcoin/ && rm -rf /bitcoin-$BUILD_TAG
+    mv /bitcoin-$BUILD_TAG /bitcoin
 
 WORKDIR /bitcoin
 
+RUN ./contrib/install_db4.sh `pwd`
+ENV BDB_PREFIX=/bitcoin/db4
 RUN ./autogen.sh
-RUN ./configure BDB_LIBS="-L${BERKELEYDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BERKELEYDB_PREFIX}/include" \
+RUN ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" \
   --disable-shared \
   --disable-static \
   --disable-tests \
