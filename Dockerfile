@@ -5,17 +5,19 @@ RUN apk add --no-cache autoconf \
     build-base \
     libressl
 
-RUN mkdir -p /bitcoin
-WORKDIR /bitcoin
+ENV BITCOIN_DIR=/bitcoin
+
+RUN mkdir -p ${BITCOIN_DIR}
+WORKDIR ${BITCOIN_DIR}
 
 ENV BERKELEYDB_VERSION=db-4.8.30.NC
-ENV BERKELEYDB_PREFIX=/bitcoin/db4
+ENV BERKELEYDB_PREFIX=${BITCOIN_DIR}/db4
 
 RUN wget -qO- https://download.oracle.com/berkeley-db/${BERKELEYDB_VERSION}.tar.gz | tar xz
 RUN sed s/__atomic_compare_exchange/__atomic_compare_exchange_db/g -i ${BERKELEYDB_VERSION}/dbinc/atomic.h
 RUN mkdir -p ${BERKELEYDB_PREFIX}
 
-WORKDIR /${BERKELEYDB_VERSION}/build_unix
+WORKDIR ${BITCOIN_DIR}/${BERKELEYDB_VERSION}/build_unix
 
 RUN ../dist/configure --enable-cxx --disable-shared --disable-replication --with-pic --prefix=${BERKELEYDB_PREFIX}
 RUN make -j4
