@@ -1,8 +1,9 @@
 FROM alpine:3.8 as berkeleydb
 
-RUN apk --no-cache add autoconf \
-    automake
-    build-base
+RUN apk add --no-cache \ 
+    autoconf \
+    automake \
+    build-base \
     libressl
 
 ENV BERKELEYDB_VERSION=db-4.8.30.NC
