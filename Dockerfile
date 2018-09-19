@@ -18,10 +18,10 @@ RUN BUILD_TAG=$(wget -qO- https://api.github.com/repos/bitcoin/bitcoin/releases/
 
 WORKDIR /bitcoin
 
-RUN ./contrib/install_db4.sh `pwd`
+RUN ./contrib/install_db4.sh $(pwd)
 
 RUN ./autogen.sh
-RUN export BDB_PREFIX=`pwd`/db4 && \
+RUN export BDB_PREFIX=$(pwd)/db4 && \
   ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" \
   --disable-shared \
   --disable-static \
