@@ -3,6 +3,7 @@ Bitcoin Core docker compose
 
 ## Requirements
 - Docker CE (recommended v18.06.1-ce) [Install Docker](https://docs.docker.com/install/)
+- The steps below assumes you also followed the steps on running docker on a non-root user [Run docker as non-root](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user) If not, you must add the command `sudo` when running `docker-compose`
 - `docker-compose` (recommended v1.22.0) [Install docker-compose](https://docs.docker.com/compose/install/)
 
 ## Installation
