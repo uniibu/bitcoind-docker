@@ -3,7 +3,7 @@ FROM alpine:3.8 as berkeleydb
 RUN apk add --no-cache autoconf \
     automake \
     build-base \
-    libressl \
+    libressl
 
 RUN mkdir -p /bitcoin
 WORKDIR /bitcoin
