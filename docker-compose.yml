@@ -1,0 +1,18 @@
+version: '3'
+services:
+  bitcoind:
+    build: .
+    networks:
+      - btcnet
+    volumes:
+      - bitcoind-data:/bitcoin
+    env_file:
+      - bitcoin.conf.env
+    ports:
+      - "8333:8333"
+      - "8332:8332"
+container_name: bitcoind
+volumes:
+  bitcoind-data:
+networks:
+  btcnet:
