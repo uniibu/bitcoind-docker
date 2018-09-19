@@ -34,7 +34,8 @@ RUN apk add --no-cache \
     libtool \
     zeromq-dev \
     curl \
-    grep
+    grep \
+    tar
 
 RUN export BUILD_TAG=$(curl -s https://api.github.com/repos/bitcoin/bitcoin/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")') && \
     curl -sL https://github.com/bitcoin/bitcoin/archive/v$BUILD_TAG.tar.gz | tar xz && mv /bitcoin-$BUILD_TAG /bitcoin
