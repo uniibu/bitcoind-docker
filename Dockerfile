@@ -4,7 +4,8 @@ RUN apk add --no-cache \
     autoconf \
     automake \
     build-base \
-    libressl
+    libressl \
+    curl
 
 ENV BERKELEYDB_VERSION=db-4.8.30.NC
 ENV BERKELEYDB_PREFIX=/opt/${BERKELEYDB_VERSION}
@@ -31,7 +32,8 @@ RUN apk add --no-cache \
     libressl-dev \
     libevent-dev \
     libtool \
-    zeromq-dev
+    zeromq-dev \
+    curl
 
 RUN BUILD_TAG=$(curl -s https://api.github.com/repos/bitcoin/bitcoin/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")') && \
     curl -sL https://github.com/bitcoin/bitcoin/archive/v$BUILD_TAG.tar.gz | tar xz && mv /bitcoin-$BUILD_TAG /bitcoin
@@ -57,7 +59,8 @@ FROM alpine:3.8
 RUN apk add --no-cache \
     bash \
     bash-doc \
-    bash-completion
+    bash-completion \
+    curl
 
 COPY --from=builder /bitcoin/src/bitcoind /bitcoin/src/bitcoin-cli /usr/local/bin/
 RUN addgroup -g 1000 bitcoind \
