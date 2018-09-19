@@ -1,26 +1,3 @@
-FROM alpine:3.8 as berkeleydb
-
-RUN apk add --no-cache \ 
-    autoconf \
-    automake \
-    build-base \
-    libressl \
-    curl
-
-ENV BERKELEYDB_VERSION=db-4.8.30.NC
-ENV BERKELEYDB_PREFIX=/opt/${BERKELEYDB_VERSION}
-
-RUN curl -sL https://download.oracle.com/berkeley-db/${BERKELEYDB_VERSION}.tar.gz | tar xz
-RUN sed s/__atomic_compare_exchange/__atomic_compare_exchange_db/g -i ${BERKELEYDB_VERSION}/dbinc/atomic.h
-RUN mkdir -p ${BERKELEYDB_PREFIX}
-
-WORKDIR /${BERKELEYDB_VERSION}/build_unix
-
-RUN ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=${BERKELEYDB_PREFIX}
-RUN make -j$(nproc)
-RUN make install
-RUN rm -rf ${BERKELEYDB_PREFIX}/docs
-
 FROM alpine:3.8 AS builder
 
 RUN apk add --no-cache \
@@ -41,8 +18,11 @@ RUN BUILD_TAG=$(wget -qO- https://api.github.com/repos/bitcoin/bitcoin/releases/
 
 WORKDIR /bitcoin
 
+RUN ./contrib/install_db4.sh `pwd`
+
 RUN ./autogen.sh
-RUN ./configure \
+RUN export BDB_PREFIX=`pwd`/db4 && \
+  ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" \
   --disable-shared \
   --disable-static \
   --disable-tests \
