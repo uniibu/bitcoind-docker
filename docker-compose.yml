@@ -2,8 +2,6 @@ version: '2'
 services:
   bitcoind:
     build: .
-    networks:
-      - btcnet
     volumes:
       - bitcoind-data:/bitcoin
     env_file:
@@ -15,5 +13,3 @@ services:
     restart: on-failure
 volumes:
   bitcoind-data:
-networks:
-  btcnet:

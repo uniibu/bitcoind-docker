@@ -60,11 +60,8 @@ RUN addgroup -g 1000 bitcoind \
 
 USER bitcoind
 RUN mkdir -p /home/bitcoind/.bitcoin
+RUN echo -e "server=1\nrpcuser=$BITCOIND_RPCUSER\nrpcpassword=$BITCOIND_RPCPW" >> /home/bitcoind/.bitcoin/bitcoin.conf
 
 EXPOSE 8333 8332
 
-CMD exec bitcoind \
-  -server \
-  -rpcuser=$BITCOIND_RPCUSER \
-  -rpcpassword=$BITCOIND_RPCPW \
-  $BITCOIND_ARGUMENTS
+CMD exec bitcoind $BITCOIND_ARGUMENTS
