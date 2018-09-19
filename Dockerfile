@@ -5,26 +5,30 @@ RUN apk add --no-cache autoconf \
     build-base \
     libressl
 
-ENV BITCOIN_DIR=/bitcoin
-
-RUN mkdir -p ${BITCOIN_DIR}
-WORKDIR ${BITCOIN_DIR}
+RUN mkdir -p /bitcoin
 
 ENV BERKELEYDB_VERSION=db-4.8.30.NC
-ENV BERKELEYDB_PREFIX=${BITCOIN_DIR}/db4
+ENV BERKELEYDB_PREFIX=/bitcoin/${BERKELEYDB_VERSION}
 
-RUN wget -qO- https://download.oracle.com/berkeley-db/${BERKELEYDB_VERSION}.tar.gz | tar xz
+RUN wget https://download.oracle.com/berkeley-db/${BERKELEYDB_VERSION}.tar.gz
+RUN tar -xzf *.tar.gz
 RUN sed s/__atomic_compare_exchange/__atomic_compare_exchange_db/g -i ${BERKELEYDB_VERSION}/dbinc/atomic.h
 RUN mkdir -p ${BERKELEYDB_PREFIX}
 
-WORKDIR ${BITCOIN_DIR}/${BERKELEYDB_VERSION}/build_unix
+WORKDIR /${BERKELEYDB_VERSION}/build_unix
 
-RUN ../dist/configure --enable-cxx --disable-shared --disable-replication --with-pic --prefix=${BERKELEYDB_PREFIX}
+RUN ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=${BERKELEYDB_PREFIX}
 RUN make -j4
 RUN make install
 RUN rm -rf ${BERKELEYDB_PREFIX}/docs
 
 FROM alpine:3.8 AS builder
+
+RUN mkdir -p /bitcoin
+
+COPY --from=berkeleydb /bitcoin /bitcoin
+ENV BERKELEYDB_VERSION=db-4.8.30.NC
+ENV BERKELEYDB_PREFIX=/bitcoin/${BERKELEYDB_VERSION}
 
 RUN apk add --no-cache \
     autoconf \
@@ -64,9 +68,18 @@ RUN apk add --no-cache \
     bash \
     bash-doc \
     bash-completion \
-    curl
+    curl \
+    boost \
+    boost-program_options \
+    libevent \
+    libressl \
+    zeromq
+
+RUN mkdir -p /bitcoin
 
 COPY --from=builder /bitcoin/src/bitcoind /bitcoin/src/bitcoin-cli /usr/local/bin/
+COPY --from=builder /bitcoin /bitcoin
+
 RUN addgroup -g 1000 bitcoind \
   && adduser -u 1000 -G bitcoind -s /bin/bash -D bitcoind
 
