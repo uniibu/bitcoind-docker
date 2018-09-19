@@ -33,12 +33,10 @@ RUN apk add --no-cache \
     libevent-dev \
     libtool \
     zeromq-dev \
-    curl \
-    grep \
-    tar
+    grep
 
-RUN export BUILD_TAG=$(curl -s https://api.github.com/repos/bitcoin/bitcoin/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")') && \
-    curl -sL https://github.com/bitcoin/bitcoin/archive/v$BUILD_TAG.tar.gz | tar xz && mv /bitcoin-$BUILD_TAG /bitcoin
+RUN export BUILD_TAG=$(wget -qO- https://api.github.com/repos/bitcoin/bitcoin/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")') && \
+    wget -qO- https://github.com/bitcoin/bitcoin/archive/v$BUILD_TAG.tar.gz | tar xz && mv /bitcoin-$BUILD_TAG /bitcoin
 
 WORKDIR /bitcoin
 
