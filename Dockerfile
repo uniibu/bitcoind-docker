@@ -35,8 +35,10 @@ RUN apk add --no-cache \
     zeromq-dev \
     grep
 
-RUN export BUILD_TAG=$(wget -qO- https://api.github.com/repos/bitcoin/bitcoin/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")') && \
-    wget -qO- https://github.com/bitcoin/bitcoin/archive/v$BUILD_TAG.tar.gz | tar xz && mv /bitcoin-$BUILD_TAG /bitcoin
+RUN wget -qO- https://api.github.com/repos/bitcoin/bitcoin/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")' > BUILD_TAG
+RUN BUILD_TAG=$(cat BUILD_TAG) && \
+    wget -qO- https://github.com/bitcoin/bitcoin/archive/v$BUILD_TAG.tar.gz | tar xz && \
+    mv /bitcoin-$BUILD_TAG /bitcoin
 
 WORKDIR /bitcoin
 
