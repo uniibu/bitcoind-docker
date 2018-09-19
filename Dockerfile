@@ -53,9 +53,14 @@ RUN strip src/bitcoind src/bitcoin-cli
 
 FROM alpine:3.8
 
+RUN apk add --no-cache \
+    bash \
+    bash-doc \
+    bash-completion
+
 COPY --from=builder /bitcoin/src/bitcoind /bitcoin/src/bitcoin-cli /usr/local/bin/
 RUN addgroup -g 1000 bitcoind \
-  && adduser -u 1000 -G bitcoind -s /bin/sh -D bitcoind
+  && adduser -u 1000 -G bitcoind -s /bin/bash -D bitcoind
 
 USER bitcoind
 RUN mkdir -p /home/bitcoind/.bitcoin
