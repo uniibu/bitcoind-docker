@@ -12,7 +12,7 @@ services:
       - "8333:8333"
       - "8332:8332"
     container_name: bitcoind
-restart: on-failure
+    restart: on-failure
 volumes:
   bitcoind-data:
 networks:
