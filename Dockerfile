@@ -8,7 +8,7 @@ RUN apk add --no-cache autoconf \
 RUN mkdir -p /bitcoin
 
 ENV BERKELEYDB_VERSION=db-4.8.30.NC
-ENV BERKELEYDB_PREFIX=/bitcoin/${BERKELEYDB_VERSION}
+ENV BERKELEYDB_PREFIX=/bitcoin/db4
 
 RUN wget https://download.oracle.com/berkeley-db/${BERKELEYDB_VERSION}.tar.gz
 RUN tar -xzf *.tar.gz
@@ -44,7 +44,7 @@ RUN apk add --no-cache \
 
 RUN BUILD_TAG=$(wget -qO- https://api.github.com/repos/bitcoin/bitcoin/releases/latest | grep -oP '"tag_name": "v\K(.*)(?=")') && \
     wget -qO- https://github.com/bitcoin/bitcoin/archive/v$BUILD_TAG.tar.gz | tar xz && \
-    mv /bitcoin-$BUILD_TAG /bitcoin
+    mv /bitcoin-$BUILD_TAG/* /bitcoin/ && rm -rf /bitcoin-$BUILD_TAG
 
 WORKDIR /bitcoin
 
