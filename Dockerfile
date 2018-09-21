@@ -53,15 +53,16 @@ RUN apk add --no-cache \
 RUN mkdir -p /bitcoin
 
 COPY --from=builder /bitcoin/src/bitcoind /bitcoin/src/bitcoin-cli /usr/local/bin/
-COPY --from=builder /bitcoin /bitcoin
+COPY --from=builder /bitcoin/db4 /bitcoin/db4
 
 RUN addgroup -g 1000 bitcoind \
   && adduser -u 1000 -G bitcoind -s /bin/bash -D bitcoind
 
 USER bitcoind
 RUN mkdir -p /home/bitcoind/.bitcoin
-RUN echo -e "server=1\nrpcuser=$BITCOIND_RPCUSER\nrpcpassword=$BITCOIND_RPCPW" >> /home/bitcoind/.bitcoin/bitcoin.conf
+
+COPY bitcoin.conf /home/bitcoind/.bitcoin/bitcoin.conf
 
 EXPOSE 8333 8332
 
-CMD exec bitcoind $BITCOIND_ARGUMENTS
+CMD exec bitcoind
